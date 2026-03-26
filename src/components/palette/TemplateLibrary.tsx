@@ -6,7 +6,7 @@ export function TemplateLibrary() {
 
   return (
     <section className="rounded-lg border-2 border-accent bg-white p-4 shadow-md">
-      <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400">Starter Blueprints</h2>
+      <h2 className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-500">Starter Blueprints</h2>
       <div className="mt-3 space-y-2">
         {STARTER_TEMPLATES.map((template) => (
           <button

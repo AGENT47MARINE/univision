@@ -12,20 +12,20 @@ export function CodePanel() {
     <div className="flex h-full flex-col gap-4 p-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-white">Generated Python</h2>
-          <p className="text-sm text-slate-400">Mocked output for the frontend-only milestone.</p>
+          <h2 className="text-lg font-semibold text-slate-900">Generated Python</h2>
+          <p className="text-sm text-slate-500">Mocked output for the frontend-only milestone.</p>
         </div>
         <CodeToolbar />
       </div>
       <GenerateCodeButton />
       {status === "error" && (
-        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-100">
+        <div className="rounded-xl border border-rose-500/20 bg-rose-50/50 p-4 text-sm text-rose-700 font-medium">
           {issues.map((issue) => (
             <p key={issue.id}>{issue.message}</p>
           ))}
         </div>
       )}
-      <div className="min-h-0 flex-1 overflow-hidden rounded-3xl border border-white/10">
+      <div className="min-h-0 flex-1 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
         <Editor
           defaultLanguage="python"
           options={{ minimap: { enabled: false }, fontSize: 13, readOnly: true }}

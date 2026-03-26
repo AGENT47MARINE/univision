@@ -33,17 +33,18 @@ This keeps the first version focused on proving the core editor workflow.
 
 ## 2. Recommended Product Changes
 
-### 2.1 Reduce the initial block catalogue
+### 2.1 Current Block Catalogue
 
-The original concept includes a very large block library. For the first frontend release, use a smaller curated set of blocks:
+The following blocks are currently implemented in the `blockRegistry.ts`:
 
-- Input: `Image Input`, `Video File`, `RTSP Stream`
-- Detection: `YOLO Detector`, `License Plate Detector`
-- Preprocessing: `Resize`, `Grayscale`, `Threshold`
-- OCR: `EasyOCR`
-- Post-Processing: `Regex Validator`
-- Output: `Annotator`, `Console Logger`
-- Utility: `Comment Node`, `Merge`
+- **Input**: `Image Input`, `RTSP Stream`
+- **Detection**: `YOLO Detector`
+- **Preprocessing**: `Grayscale`
+- **OCR**: `EasyOCR`
+- **Post-Processing**: `Regex Validator`
+- **Output**: `Annotator`, `Console Logger`
+
+*Planned for future release*: `Video File`, `License Plate Detector`, `Resize`, `Threshold`, `Comment Node`, `Merge`.
 
 This is enough to validate the UX without introducing excessive schema and state complexity.
 
@@ -97,16 +98,16 @@ This will make the tool feel much more approachable.
 
 ### 3.1 Core stack
 
-- React 18 + TypeScript
-- Vite
-- React Flow
-- Zustand
-- Tailwind CSS
-- CSS Modules for complex node styling
-- Monaco Editor
-- Framer Motion
-- Dagre
-- Vitest + React Testing Library
+- **React 18 + TypeScript**: Main application framework.
+- **Vite**: Build tool and dev server.
+- **React Flow**: Canvas-based node editing library.
+- **Zustand**: Lightweight state management.
+- **Tailwind CSS**: Utility-first styling.
+- **Lucide React**: Iconography.
+- **Monaco Editor**: Code viewer and editor.
+- **Framer Motion**: Smooth animations.
+- **Dagre**: Graph auto-layout library.
+- **Vitest + React Testing Library**: Testing suite.
 
 ### 3.2 Architecture principles
 
@@ -118,30 +119,68 @@ This will make the tool feel much more approachable.
 
 ---
 
-## 4. Proposed File Structure
+## 4. Current UI Components & File Structure
+
+The frontend application consists of several key UI areas organized into a cohesive workbench.
+
+### App Shell & Layout (`src/app/`, `src/components/layout/`)
+- **AppShell**: The main application container that provides context providers and the overall layout.
+- **Topbar**: The top navigation bar containing the application title, project actions, and status indicators.
+- **LeftSidebar**: A responsive sidebar containing the tool palette and templates.
+- **RightPanel**: A tabbed panel that switches between the configurations inspector and generated code.
+
+### Node Canvas (`src/components/canvas/`)
+Powered by React Flow, this is the main workspace.
+- **WorkbenchCanvas**: The core editable canvas area where users drag, drop, and connect vision nodes. It supports zoom, pan, and mini-map navigation.
+- **CanvasToolbar**: A floating toolbar providing quick actions like zooming and layout arrangement.
+- **WorkbenchMiniMap**: A small preview of the entire graph for quick navigation.
+
+### Block Definitions (`src/components/blocks/`)
+Nodes that represent individual pipeline operations.
+- **BlockNode**: The visual representation of a vision operation (e.g., YOLO Detector, Resize). It dynamically renders based on the registry.
+- **BlockPort**: Input/Output connection points enforcing data typing.
+- **BlockStatusBadge**: Status indicators (e.g. error, valid) overlaid on blocks.
+- **BlockCategoryBar**: Visual grouping markers for identifying block types.
+
+### Component Palette (`src/components/palette/`)
+The sidebar library of available vision concepts.
+- **BlockPalette**: A searchable catalogue of available blocks that can be dragged directly onto the canvas.
+- **BlockCategorySection**: Organizes the palette items conceptually (Input, Detection, Post-Processing, etc.).
+- **BlockPaletteItem**: Individual draggable items in the catalogue.
+- **TemplateLibrary**: Pre-configured graph templates to help users get started quickly.
+
+### Inspector (`src/components/inspector/`)
+Dynamic forms to edit node properties.
+- **BlockInspector**: Renders when a node is selected, looking up the node's schema in the `blockRegistry`.
+- **ConfigFieldRenderer**: Analyzes schema types and mounts the appropriate form fields.
+- **fields/**: Specific input controls (TextField, NumberField, SelectField, ToggleField) tailored to configuration rules.
+
+### Code Panel (`src/components/code/`)
+The final output region.
+- **CodePanel**: A Monaco-editor powered view showing the generated Python script. It dynamically reflects the graph's validated state.
+- **CodeToolbar**: Tools to copy or download the generated code.
+- **GenerateCodeButton**: Triggers the translation from visual graph to Python code.
+
+### File Structure Map
 
 ```text
 src/
   app/
     AppShell.tsx
-    routes.tsx
   components/
-    canvas/
-      WorkbenchCanvas.tsx
-      CanvasToolbar.tsx
-      CustomConnectionLine.tsx
-      WorkbenchMiniMap.tsx
     blocks/
+      BlockCategoryBar.tsx
       BlockNode.tsx
       BlockPort.tsx
       BlockStatusBadge.tsx
-      BlockCategoryBar.tsx
-    palette/
-      BlockPalette.tsx
-      BlockPaletteSearch.tsx
-      BlockCategorySection.tsx
-      BlockPaletteItem.tsx
-      TemplateLibrary.tsx
+    canvas/
+      CanvasToolbar.tsx
+      WorkbenchCanvas.tsx
+      WorkbenchMiniMap.tsx
+    code/
+      CodePanel.tsx
+      CodeToolbar.tsx
+      GenerateCodeButton.tsx
     inspector/
       BlockInspector.tsx
       ConfigFieldRenderer.tsx
@@ -150,42 +189,38 @@ src/
         NumberField.tsx
         SelectField.tsx
         ToggleField.tsx
-        JsonField.tsx
-    code/
-      CodePanel.tsx
-      CodeToolbar.tsx
-      GenerateCodeButton.tsx
     layout/
-      Topbar.tsx
       LeftSidebar.tsx
       RightPanel.tsx
-    feedback/
-      EmptyState.tsx
-      ToastHost.tsx
-      ValidationPanel.tsx
-  store/
-    graphStore.ts
-    uiStore.ts
-    historyStore.ts
-    codeStore.ts
-  lib/
-    blockRegistry.ts
-    graphSerializer.ts
-    graphValidator.ts
-    cycleDetection.ts
-    autoLayout.ts
-    mockCodeGenerator.ts
-  types/
-    graph.ts
-    block.ts
-    port.ts
-    connection.ts
-    configSchema.ts
+      Topbar.tsx
+    palette/
+      BlockCategorySection.tsx
+      BlockPalette.tsx
+      BlockPaletteItem.tsx
+      TemplateLibrary.tsx
   constants/
     categories.ts
-    portTypes.ts
     keyboardShortcuts.ts
+    portTypes.ts
     templates.ts
+  lib/
+    autoLayout.ts
+    blockRegistry.ts
+    cycleDetection.ts
+    graphSerializer.ts
+    graphValidator.ts
+    mockCodeGenerator.ts
+  store/
+    codeStore.ts
+    graphStore.ts
+    historyStore.ts
+    uiStore.ts
+  types/
+    block.ts
+    configSchema.ts
+    connection.ts
+    graph.ts
+    port.ts
 ```
 
 ---
@@ -311,69 +346,70 @@ The MVP should exclude:
 
 Use separate stores for clear responsibility boundaries.
 
-### Graph store
+### Graph store (`graphStore.ts`)
 
 Holds:
-
-- blocks
-- connections
-- selected block ids
-- viewport snapshot
+- `projectName`: the name of the current project
+- `blocks`: list of `GraphBlock` objects on the canvas
+- `connections`: list of `GraphConnection` (edge) objects
+- `selectedBlockId`: ID of the currently focused block
 
 Actions:
+- `addBlock(type, position)`: instantiates a new block with defaults from the registry
+- `updateBlockConfig(blockId, key, value)`: updates a specific config field and saves to disk
+- `setSelectedBlockId(id)`: handles node selection state
+- `setGraph(graph)`: replaces the entire graph state (used for loading/templates)
+- `addConnection(connection)`: adds a new edge between ports
+- `removeConnection(connectionId)`: deletes an existing edge
 
-- add block
-- update block
-- remove block
-- connect ports
-- disconnect edge
-- duplicate selection
-- import graph
-- export graph
-
-### UI store
+### UI store (`uiStore.ts`)
 
 Holds:
+- `rightPanelTab`: active right-panel tab (`inspector` | `code`)
+- `paletteQuery`: current search query in the block palette
 
-- active right-panel tab
-- palette search query
-- collapsed sidebar state
-- modal and toast state
+Actions:
+- `setRightPanelTab`
+- `setPaletteQuery`
 
-### Code store
-
-Holds:
-
-- generated code
-- generation status
-- generation errors
-
-### History store
+### Code store (`codeStore.ts`)
 
 Holds:
+- `code`: generated Python code string
+- `status`: generation status (`idle` | `loading` | `ready` | `error`)
+- `issues`: validation issues encountered during generation
 
-- undo stack
-- redo stack
+Actions:
+- `setLoading`
+- `setCode`
+- `setIssues`
+
+### History store (`historyStore.ts`)
+
+Holds:
+- `undoDepth`: number of available undo steps
+- `redoDepth`: number of available redo steps
+
+Actions:
+- `setDepths`
 
 ---
 
-## 8. Validation Rules for MVP
+## 8. Validation Rules
 
-The frontend validator should implement these first:
+The frontend validator (`graphValidator.ts`) implements the following rules:
 
-- source and target port types must match
-- one input port accepts only one incoming connection
-- output ports may fan out to multiple targets
-- a block cannot connect to itself
-- cycles are invalid
-- required config fields must be present before generation
+- **Self-loops**: A block cannot connect to itself.
+- **Type Safety**: Source and target port types must match (e.g., `frame` to `frame`).
+- **Fan-in Constraint**: Each input port accepts only one incoming connection.
+- **Cycle Detection**: The graph must be a Directed Acyclic Graph (DAG).
+- **Configuration**: Required config fields (defined in the `blockRegistry`) must be present.
 
-The validator should return structured errors tied to:
-
-- block id
-- port id
-- connection id
-- human-readable message
+The validator returns structured `ValidationIssue` objects:
+- `id`: unique identifier for the issue
+- `level`: severity (`error` | `warning`)
+- `message`: human-readable description
+- `blockId` / `portId` / `connectionId`: optional references to the offending elements
 
 ---
 
@@ -440,12 +476,19 @@ That approach will:
 
 ---
 
-## 12. Immediate Next Steps
+## 12. Current Status & Next Steps
 
-1. Set up the React + TypeScript + Vite frontend project.
-2. Define the graph types and block registry schema.
-3. Implement the app shell and React Flow canvas.
-4. Build the inspector and validation layer.
-5. Add save/load and mocked code generation.
+The frontend build baseline is **complete**. The core editor, registry, validation, and serialization layers are fully operational.
 
-This should be treated as the frontend build baseline going forward.
+### Completed Foundations
+1. **App Shell**: Responsive three-panel layout with tabbed right panel.
+2. **Registry**: Schema-driven block definitions for extensible pipeline creation.
+3. **Canvas**: React Flow integration with custom nodes, ports, and auto-layout.
+4. **Validation**: Real-time DAG validation, type checking, and config auditing.
+5. **Persistence**: Graph state is automatically serialized to `localStorage`.
+
+### Immediate Next Steps
+1. **Extend Block Library**: Implement `Video File`, `License Plate Detector`, and `Annotator` logic.
+2. **AI Integration**: Replace the `mockCodeGenerator` with a real LLM-backed service.
+3. **Execution Layer**: Hook up the generated code to a Python runner for live previews.
+4. **Enhanced Onboarding**: Add interactive tutorials and more starter templates.
